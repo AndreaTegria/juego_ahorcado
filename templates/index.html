@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Juego del Ahorcado</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="contenedor">
+
+        <h1> Juego del Ahorcado</h1>
+
+        <pre>{{ dibujo }}</pre>
+
+        <h2>{{ palabra_oculta }}</h2>
+
+        {% if juego_ganado %}
+            <div class="ganaste">
+                <h2>🎉 ¡Ganaste!</h2>
+                <p>Has adivinado la palabra correctamente.</p>
+            </div>
+        {% endif %}
+
+        {% if juego_perdido %}
+            <div class="perdiste">
+                <h2>💀 ¡Perdiste!</h2>
+                <p>La palabra era: <strong>{{ palabra }}</strong></p>
+            </div>
+        {% endif %}
+
+        {% if not juego_ganado and not juego_perdido %}
+            <form method="POST">
+                <input type="text" name="letra" maxlength="1"
+                       placeholder="Letra" autocomplete="off" required>
+                <button type="submit">Probar letra</button>
+            </form>
+        {% endif %}
+
+        <div class="separador"></div>
+
+        <div class="info">
+            <strong>Letras usadas:</strong> {{ letras }}
+        </div>
+
+        <div class="info">
+            <strong>Intentos restantes:</strong> {{ intentos }}
+        </div>
+
+        <a href="/reiniciar" class="nueva-partida">🔄 Nueva partida</a>
+
+    </div>
+</body>
+</html>
