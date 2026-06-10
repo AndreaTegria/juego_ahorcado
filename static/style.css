@@ -1,3 +1,4 @@
+Style · CSS
 * {
     margin: 0;
     padding: 0;
@@ -19,160 +20,152 @@ body {
     background-color: #16213e;
     border-radius: 16px;
     padding: 40px;
-    max-width: 600px;
+    max-width: 500px;
     width: 100%;
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
     text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
 }
  
 h1 {
     font-size: 2rem;
     color: #e94560;
-    margin-bottom: 30px;
     letter-spacing: 1px;
 }
  
 h2 {
     font-size: 1.4rem;
     color: #eaeaea;
-    margin: 20px 0;
-    letter-spacing: 4px;
+    letter-spacing: 6px;
 }
  
-/* Dibujo del ahorcado */
 pre {
     font-family: 'Courier New', monospace;
     font-size: 1rem;
     background-color: #0f3460;
     border-radius: 12px;
-    padding: 20px;
-    display: inline-block;
-    margin: 20px auto;
+    padding: 20px 30px;
     color: #e94560;
     line-height: 1.4;
-    min-width: 160px;
     text-align: left;
 }
  
-/* Formulario */
-form {
-    margin: 24px 0;
+/* Teclado */
+.teclado {
     display: flex;
-    justify-content: center;
-    gap: 12px;
     flex-wrap: wrap;
+    justify-content: center;
+    gap: 8px;
+    width: 100%;
 }
  
-input[type="text"] {
-    padding: 12px 16px;
-    font-size: 1.1rem;
-    border: 2px solid #0f3460;
+.tecla {
+    width: 42px;
+    height: 42px;
     border-radius: 8px;
+    border: 2px solid #0f3460;
     background-color: #0f3460;
     color: #eaeaea;
-    width: 100px;
-    text-align: center;
-    text-transform: uppercase;
-    outline: none;
-    transition: border-color 0.2s;
-}
- 
-input[type="text"]:focus {
-    border-color: #e94560;
-}
- 
-input[type="text"]::placeholder {
-    color: #888;
-    text-transform: none;
-}
- 
-button[type="submit"] {
-    padding: 12px 24px;
-    font-size: 1rem;
-    background-color: #e94560;
-    color: white;
-    border: none;
-    border-radius: 8px;
-    cursor: pointer;
+    font-size: 0.95rem;
     font-weight: 600;
-    transition: background-color 0.2s, transform 0.1s;
+    cursor: pointer;
+    transition: background-color 0.15s, transform 0.1s, border-color 0.15s;
 }
  
-button[type="submit"]:hover {
-    background-color: #c73652;
-    transform: translateY(-1px);
+.tecla:hover:not(:disabled) {
+    background-color: #e94560;
+    border-color: #e94560;
+    transform: translateY(-2px);
 }
  
-button[type="submit"]:active {
+.tecla:active:not(:disabled) {
     transform: translateY(0);
 }
  
-/* Letras e intentos */
+.tecla.correcta {
+    background-color: #4ecca3;
+    border-color: #4ecca3;
+    color: #1a1a2e;
+    cursor: default;
+}
+ 
+.tecla.incorrecta {
+    background-color: #e94560;
+    border-color: #e94560;
+    color: white;
+    opacity: 0.5;
+    cursor: default;
+}
+ 
+.tecla:disabled {
+    cursor: default;
+}
+ 
+/* Info */
 .info {
     background-color: #0f3460;
     border-radius: 10px;
-    padding: 14px 20px;
-    margin: 10px 0;
+    padding: 14px 24px;
+    width: 100%;
     font-size: 1rem;
     color: #eaeaea;
+    text-align: center;
 }
  
 .info strong {
     color: #e94560;
 }
  
-/* Mensaje ganaste */
+.separador {
+    height: 1px;
+    background-color: #0f3460;
+    width: 100%;
+}
+ 
 .ganaste {
     color: #4ecca3;
     font-size: 1.6rem;
-    margin: 20px 0 10px;
 }
  
 .ganaste p {
     color: #eaeaea;
     font-size: 1rem;
+    margin-top: 6px;
 }
  
-/* Mensaje perdiste */
 .perdiste {
     color: #e94560;
     font-size: 1.6rem;
-    margin: 20px 0 10px;
 }
  
 .perdiste p {
     color: #eaeaea;
     font-size: 1rem;
+    margin-top: 6px;
 }
  
 .perdiste strong {
     color: #4ecca3;
 }
  
-/* Enlace nueva partida */
 .nueva-partida {
     display: inline-block;
-    margin-top: 24px;
     padding: 12px 28px;
-    background-color: #0f3460;
+    background-color: transparent;
     color: #4ecca3;
     text-decoration: none;
     border-radius: 8px;
     font-weight: 600;
     font-size: 1rem;
-    transition: background-color 0.2s, transform 0.1s;
     border: 2px solid #4ecca3;
+    transition: background-color 0.2s, color 0.2s, transform 0.1s;
 }
  
 .nueva-partida:hover {
     background-color: #4ecca3;
     color: #1a1a2e;
-    transform: translateY(-1px);
-}
- 
-/* Separador */
-.separador {
-    height: 1px;
-    background-color: #0f3460;
-    margin: 20px 0;
+    transform: translateY(-2px);
 }

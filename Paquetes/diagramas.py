@@ -77,6 +77,6 @@ vidas = {
     ║     ╱ ╲
     ║
     ╚══════════
-      DERROTA
+     ❌ You Lost!
     """
 }

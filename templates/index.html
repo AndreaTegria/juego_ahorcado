@@ -2,52 +2,117 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Juego del Ahorcado</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
     <div class="contenedor">
 
-        <h1> Juego del Ahorcado</h1>
+        <h1>🎯 Hangman Game </h1>
 
-        <pre>{{ dibujo }}</pre>
+        <pre id="dibujo">{{ dibujo }}</pre>
 
-        <h2>{{ palabra_oculta }}</h2>
+        <h2 id="palabra-oculta">{{ palabra_oculta }}</h2>
 
-        {% if juego_ganado %}
-            <div class="ganaste">
-                <h2>🎉 ¡Ganaste!</h2>
-                <p>Has adivinado la palabra correctamente.</p>
-            </div>
-        {% endif %}
+        <div class="pista">
+            💡 <strong>Hint:</strong> {{ pista }}
+        </div>
 
-        {% if juego_perdido %}
-            <div class="perdiste">
-                <h2>💀 ¡Perdiste!</h2>
-                <p>La palabra era: <strong>{{ palabra }}</strong></p>
-            </div>
-        {% endif %}
-
-        {% if not juego_ganado and not juego_perdido %}
-            <form method="POST">
-                <input type="text" name="letra" maxlength="1"
-                       placeholder="Letra" autocomplete="off" required>
-                <button type="submit">Probar letra</button>
-            </form>
-        {% endif %}
+        <div id="mensaje">
+            {% if juego_ganado %}
+                <div class="ganaste">
+                    <h2>🎉 CORRECT!</h2>
+                    <p><strong>{{ palabra }}</strong> — {{ traduccion }}</p>
+                    <p>{{ ejemplo }}</p>
+                    <p><em>{{ ejemplo_traduccion }}</em></p>
+                </div>
+            {% endif %}
+            {% if juego_perdido %}
+                <div class="perdiste">
+                    <h2>💀 GAME OVER!</h2>
+                    <p><strong>{{ palabra }}</strong> — {{ traduccion }}</p>
+                    <p>{{ ejemplo }}</p>
+                    <p><em>{{ ejemplo_traduccion }}</em></p>
+                </div>
+            {% endif %}
+        </div>
 
         <div class="separador"></div>
 
         <div class="info">
-            <strong>Letras usadas:</strong> {{ letras }}
+            <strong> Remaining attempts:</strong>
+            <span id="intentos">{{ intentos }}</span>
         </div>
 
-        <div class="info">
-            <strong>Intentos restantes:</strong> {{ intentos }}
+        <div id="teclado" class="teclado">
+            {% for letra in "ABCDEFGHIJKLMNOPQRSTUVWXYZ" %}
+                <button
+                    class="tecla {% if letra in letras %}usada {% if letra in palabra %}correcta{% else %}incorrecta{% endif %}{% endif %}"
+                    onclick="enviarLetra('{{ letra }}')"
+                    {% if letra in letras or juego_ganado or juego_perdido %}disabled{% endif %}>
+                    {{ letra }}
+                </button>
+            {% endfor %}
         </div>
 
-        <a href="/reiniciar" class="nueva-partida">🔄 Nueva partida</a>
+        <div class="separador"></div>
+
+        <a href="/reiniciar" class="nueva-partida">🔄 New Game</a>
 
     </div>
+
+    <script>
+        async function enviarLetra(letra) {
+            const respuesta = await fetch('/letra', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ letra: letra })
+            });
+
+            const datos = await respuesta.json();
+
+            document.getElementById('palabra-oculta').textContent = datos.palabra_oculta;
+            document.getElementById('dibujo').textContent = datos.dibujo;
+            document.getElementById('intentos').textContent = datos.intentos;
+
+            const boton = document.querySelector(`.tecla[onclick="enviarLetra('${letra}')"]`);
+            if (boton) {
+                boton.disabled = true;
+                boton.classList.add('usada');
+                if (datos.letras.includes(letra) && datos.palabra_oculta.includes(letra)) {
+                    boton.classList.add('correcta');
+                } else {
+                    boton.classList.add('incorrecta');
+                }
+            }
+
+            if (datos.juego_ganado) {
+                document.getElementById('mensaje').innerHTML = `
+                    <div class="ganaste">
+                        <h2>🎉 Correct!</h2>
+                        <p><strong>${datos.palabra}</strong> — ${datos.traduccion}</p>
+                        <p>${datos.ejemplo}</p>
+                        <p><em>${datos.ejemplo_traduccion}</em></p>
+                    </div>`;
+                deshabilitarTeclado();
+            }
+
+            if (datos.juego_perdido) {
+                document.getElementById('mensaje').innerHTML = `
+                    <div class="perdiste">
+                        <h2>💀 Game Over!</h2>
+                        <p><strong>${datos.palabra}</strong> — ${datos.traduccion}</p>
+                        <p>${datos.ejemplo}</p>
+                        <p><em>${datos.ejemplo_traduccion}</em></p>
+                    </div>`;
+                deshabilitarTeclado();
+            }
+        }
+
+        function deshabilitarTeclado() {
+            document.querySelectorAll('.tecla').forEach(b => b.disabled = true);
+        }
+    </script>
 </body>
 </html>

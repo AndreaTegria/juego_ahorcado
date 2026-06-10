@@ -1,59 +1,101 @@
+
+from flask import Flask, render_template, request, session, jsonify
 import random
-import string
+ 
 from Paquetes import bd_palabras
 from Paquetes import diagramas
-
-
-def juego_ahorcados(palabra):
-    print("===================================")
-    print("¡Bienvenido al juego del Ahorcado!!")
-    print("==================================")
-    
-    letrasPorAdivinar = set (palabra)
-    abecedario = set(string.ascii_uppercase)
-    letrasAdivinadas = set()
-    
-    intentos = 7
-    
-    while len(letrasPorAdivinar) > 0 and intentos > 0:
-        print(f"Te quedan {intentos} intentos y has usado estas: {' '.join(letrasAdivinadas)}")
-        
-        
-        palabraLista = [ letra if letra in  letrasAdivinadas else '-' for letra in palabra]
-        
-        print(diagramas.vidas[intentos])
-        
-        print(f"Palabra: {''.join(palabraLista) }")
-        
-        letraUsuario = input(" Digite una letra para la palabra: ").upper()
-        
-        if letraUsuario in abecedario - letrasAdivinadas:
-            letrasAdivinadas.add(letraUsuario)
-            
-            if letraUsuario in letrasPorAdivinar:
-                letrasPorAdivinar.remove(letraUsuario)
-                print('')
-            else:
-                intentos -=1
-                print(f"\n Tu letra, {letraUsuario} no se encuentra en la palabra")
-    
-        elif letraUsuario in letrasAdivinadas:
-            print("\ Ya escogiste esas letras. Por favor escoge una letra nueva")
-            
+ 
+app = Flask(__name__)
+app.secret_key = "ahorcado123"
+ 
+ 
+@app.route("/", methods=["GET"])
+def inicio():
+    if "palabra" not in session:
+        session["palabra"] = random.choice(
+            bd_palabras.bdPalabras
+        ).upper()
+        session["letras_adivinadas"] = []
+        session["intentos"] = 7
+ 
+    return render_template(
+        "index.html",
+        palabra_oculta=obtener_palabra_oculta(),
+        letras=session["letras_adivinadas"],
+        intentos=session["intentos"],
+        dibujo=diagramas.vidas[session["intentos"]],
+        juego_ganado=verificar_ganado(),
+        juego_perdido=session["intentos"] == 0,
+        palabra=session["palabra"]
+    )
+ 
+ 
+@app.route("/letra", methods=["POST"])
+def procesar_letra():
+    data = request.get_json()
+    letra = data.get("letra", "").upper()
+ 
+    palabra = session.get("palabra", "")
+    juego_ganado = verificar_ganado()
+    juego_perdido = session["intentos"] == 0
+ 
+    if not juego_ganado and not juego_perdido:
+        if (
+            letra
+            and letra.isalpha()
+            and letra not in session["letras_adivinadas"]
+        ):
+            letras = session["letras_adivinadas"]
+            letras.append(letra)
+            session["letras_adivinadas"] = letras
+ 
+            if letra not in palabra:
+                session["intentos"] -= 1
+ 
+    juego_ganado = verificar_ganado()
+    juego_perdido = session["intentos"] == 0
+ 
+    return jsonify({
+        "palabra_oculta": obtener_palabra_oculta(),
+        "letras": session["letras_adivinadas"],
+        "intentos": session["intentos"],
+        "dibujo": diagramas.vidas[session["intentos"]],
+        "juego_ganado": juego_ganado,
+        "juego_perdido": juego_perdido,
+        "palabra": palabra
+    })
+ 
+ 
+@app.route("/reiniciar")
+def reiniciar():
+    session.clear()
+    return """
+    <script>
+        window.location.href='/';
+    </script>
+    """
+ 
+ 
+def obtener_palabra_oculta():
+    palabra = session.get("palabra", "")
+    letras_adivinadas = session.get("letras_adivinadas", [])
+    resultado = ""
+    for letra in palabra:
+        if letra in letras_adivinadas:
+            resultado += letra + " "
         else:
-            print("\n Esta letra no es valida")
-    if intentos == 0:
-        print(diagramas.vidas[intentos])
-        print(f"¡AHORCADO! perdiste. Lo lamento mucho. La palabra era : {palabra}")
-    else: 
-        print(f"Adivinaste la palabra {palabra}")
-                
-palabra = random.choice(bd_palabras.bdPalabras).upper()
-
-juego_ahorcados(palabra)
-
-
-        
-        
-    
-    
+            resultado += "_ "
+    return resultado.strip()
+ 
+ 
+def verificar_ganado():
+    palabra = session.get("palabra", "")
+    letras_adivinadas = session.get("letras_adivinadas", [])
+    for letra in palabra:
+        if letra not in letras_adivinadas:
+            return False
+    return True
+ 
+ 
+if __name__ == "__main__":
+    app.run(debug=True)
