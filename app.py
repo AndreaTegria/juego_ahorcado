@@ -22,10 +22,10 @@ def inicio():
  
     return render_template(
         "index.html",
-        pista=session["pista"],
-        traduccion=session["traduccion"],
-        ejemplo=session["ejemplo"],
-        ejemplo_traduccion=session["ejemplo_traduccion"],
+        pista=session.get("pista", ""),
+        traduccion=session.get("traduccion", ""),
+        ejemplo=session.get("ejemplo", ""),
+        ejemplo_traduccion=session.get("ejemplo_traduccion", ""),
         palabra_oculta=obtener_palabra_oculta(),
         letras=session["letras_adivinadas"],
         intentos=session["intentos"],
@@ -69,11 +69,10 @@ def procesar_letra():
         "juego_ganado": juego_ganado,
         "juego_perdido": juego_perdido,
         "palabra": palabra,
-        "pista": session["pista"],
-        "traduccion": session["traduccion"],
-        "ejemplo": session["ejemplo"],
-        "ejemplo_traduccion": session["ejemplo_traduccion"],
-        
+        "pista": session.get("pista", ""),
+        "traduccion": session.get("traduccion", ""),
+        "ejemplo": session.get("ejemplo", ""),
+        "ejemplo_traduccion": session.get("ejemplo_traduccion", "")
     })
  
  
